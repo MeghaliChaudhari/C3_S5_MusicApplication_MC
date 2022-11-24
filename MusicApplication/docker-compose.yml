@@ -1,0 +1,52 @@
+version:  '3.9'
+services:
+  user-track-service:
+    image:  user-track-image
+    container_name: user-track-service
+    build:  UserTrackService/
+    restart:  always
+    network_mode: custom-network
+    ports:
+      - 64100:64100
+    depends_on:
+      - mongoService
+      - apigateway
+
+  mongoService:
+    image:  mongo
+    container_name: mongoService
+    ports:
+      - 27017:27017
+    network_mode: custom-network
+
+  user-authentication-service:
+    image:  user-authentication_image
+    container_name: user-authentication-service
+    build:  UserAuthenticationService/
+    restart:  always
+    network_mode: custom-network
+    ports:
+      - 8082:8082
+    depends_on:
+      - mysqlService
+      - apigateway
+
+  mysqlService:
+    image:  mysql:latest
+    container_name: mysqlService
+    network_mode: custom-network
+    ports:
+      - 3306:3306
+
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USERNAME: root
+      MYSQL_PASSWORD: root
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+
+  apigateway:
+    container_name: apigateway
+    build: ApiGateway
+    network_mode: custom-network
+    ports:
+      - 9500:9500
